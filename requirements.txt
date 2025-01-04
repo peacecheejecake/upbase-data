@@ -1,0 +1,8 @@
+requests
+psycopg2
+pyright
+fastapi
+pandas
+numpy
+python-dotenv
+scikit-learn
