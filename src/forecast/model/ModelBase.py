@@ -1,3 +1,4 @@
+from typing import Optional
 from abc import ABCMeta, abstractmethod
 from ..typings import InputType, OutputType, Score
 
@@ -11,7 +12,7 @@ class ModelBase(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def train(self, X: InputType, y: OutputType):
+    def train(self, X: InputType, y: OutputType, X_test: InputType, y_test: OutputType):
         pass
 
     @abstractmethod

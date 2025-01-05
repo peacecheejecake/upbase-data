@@ -68,11 +68,14 @@ class Trainer:
     self.split_train_valid_data(self.valid_ratio)
 
   def split_train_valid_data(self, test_size=0.2):
-    X_train, X_test, y_train, y_test = train_test_split(
-      np.array(self.data.X),
-      np.array(self.data.y).reshape(-1),
-      test_size=test_size
-    )
+    # X_train, X_test, y_train, y_test = train_test_split(
+    #   np.array(self.data.X),
+    #   np.array(self.data.y).reshape(-1),
+    #   test_size=test_size
+    # )
+    
+    X_train, X_test = self.data.X[:-60], self.data.X[-60:]
+    y_train, y_test = self.data.y[:-60], self.data.y[-60:]
 
     self.data_splits = {
       'train': Dataset(X_train, y_train),
@@ -88,9 +91,15 @@ class Trainer:
     # self.y_train = y_train
     # self.y_test = y_test
 
-  def train(self):
-    print('Start training')
-    self.model.train(self.data_splits['train']['X'], self.data_splits['train']['y'])
+  def train(self, validate: bool = True):
+    X = self.data_splits['train']['X']
+    y = self.data_splits['train']['y']
+    print(f'Start training - X: {X.shape}, y: {y.shape}')
+    
+    self.model.train(X, y, X_test=self.data_splits['valid']['X'], y_test=self.data_splits['valid']['y'])
+    
+    if (validate):
+      self.validate()
 
   def test(self, X: InputType, y: OutputType):
     return self.model.test(X, y)

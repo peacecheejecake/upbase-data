@@ -1,8 +1,12 @@
 requests
 psycopg2
 pyright
-fastapi
+fastapi[all]
 pandas
 numpy
 python-dotenv
 scikit-learn
+pyarrow
+fastparquet
+xgboost
+libomp

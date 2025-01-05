@@ -3,10 +3,13 @@ from datetime import datetime
 from dateutil import tz
 
 def kst_time(
-    dt: Union[datetime, str], 
+    dt: Optional[Union[datetime, str]] = None, 
     format: Optional[str] = '%Y-%m-%dT%H:%M:%S',
     is_utc: Optional[bool] = False
   ) -> str:
+  if (not dt):
+    dt = datetime.now()
+  
   if isinstance(dt, str):
     if format:
       dt = datetime.strptime(dt, format)

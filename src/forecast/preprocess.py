@@ -25,6 +25,35 @@ def add_mid_price(data: pd.DataFrame, sort: bool = False) -> pd.DataFrame:
     _data.insert(_data.columns.size, 'mid_price', mid_prices)
     return _data
 
+def add_price_changes(data: pd.DataFrame, sort: bool = False) -> pd.DataFrame:
+    if 'mid_price' not in data.columns:
+        data = add_mid_price(data, sort)
+        
+    print('add_price_changes')
+    
+    _data = (sort_by_time if sort else clone)(data)
+    
+    diff_mid_prices = _data.mid_price.diff().div(_data.mid_price)
+    diff_opening_prices = _data.opening_price.diff().div(_data.opening_price)
+    diff_high_prices = _data.high_price.diff().div(_data.high_price)
+    diff_low_prices = _data.low_price.diff().div(_data.low_price)
+    
+    _data.insert(_data.columns.size, 'diff_mid_price', diff_mid_prices)
+    _data.insert(_data.columns.size, 'diff_opening_price', diff_opening_prices)
+    _data.insert(_data.columns.size, 'diff_high_price', diff_high_prices)
+    _data.insert(_data.columns.size, 'diff_low_price', diff_low_prices)
+    
+    return _data
+
+def add_trade_volume_changes(data: pd.DataFrame, sort: bool = False) -> pd.DataFrame:
+    print('add_trade_volume_changes')
+    _data = (sort_by_time if sort else clone)(data)
+    
+    diff_trade_volumes = _data.candle_acc_trade_volume.diff()
+    _data.insert(_data.columns.size, 'diff_candle_acc_trade_volume', diff_trade_volumes)
+    
+    return _data
+
 def add_variance(data: pd.DataFrame, stride: int = 60, sort: bool = False) -> pd.DataFrame:
     print('add_variance')
     _data = (sort_by_time if sort else clone)(data)

@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Optional
 from datetime import datetime, timedelta
 from time import sleep
 import math
@@ -8,6 +8,7 @@ import pandas as pd
 from upbit.candles import TimeUnit, UpbitCandles
 from utils.datetime import kst_time
 from utils.functools import chain
+from utils.backup import save_parquet
 from .preprocess import (
   remove_duplicated, 
   sort_by_time, 
@@ -18,13 +19,14 @@ from .preprocess import (
   add_worst_profit_rate_before, 
   add_variance, 
   add_timedelta_after,
+  add_price_changes,
+  add_trade_volume_changes,
 )
 
 class DataLoader:
 
   @staticmethod
-  async def load_candles(market: str, unit: TimeUnit, count: int):
-    print("LOAD CANDLE DATA")
+  async def load_candles(market: str, unit: TimeUnit, count: int, file_name: Optional[str] = None) -> pd.DataFrame:
     print(f"market={market}, candle_unit={unit}, count={count}")
 
     to = kst_time(datetime.now())
@@ -50,9 +52,9 @@ class DataLoader:
     print()
 
     df = pd.DataFrame(data=data)
-
-    # if file_name:
-    #     save_parquet(df, file_name)
+    
+    if file_name:
+      save_parquet(df, file_name)
 
     return df
   
@@ -68,6 +70,8 @@ class DataLoader:
       add_worst_profit_rate_before,
       add_variance,
       add_timedelta_after,
+      add_price_changes,
+      add_trade_volume_changes,
     )(data)
 
   @staticmethod

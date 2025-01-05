@@ -1,35 +1,18 @@
 # from utilsimport UPBIT_REST_API_BASE
-from forecast import DataLoader, Trainer, RandomForestModel, Dataset
-import numpy as np
+# from forecast import DataLoader, Trainer, RandomForestModel, Dataset
+# import numpy as np
 import asyncio
+from app import App
 
 async def main():
-    model = RandomForestModel()
-    
-    data = await DataLoader.load_candles(
-        market='KRW-IOTA', 
-        unit='second', 
-        count=200000
-    )
-    X, y = DataLoader.make_input_output(
-        DataLoader.preprocess(data), 
-        columns_X=[
-            'variance', 
-            'worst_profit_rate_before', 
-            'opening_price', 
-            'high_price', 
-            'mid_price', 
-            'low_price', 
-            'candle_acc_trade_volume', 
-            'timedelta_after'
-        ], 
-        columns_y=['best_profit_rate'],
-    )
-
-    trainer = Trainer(model, Dataset(X, y), valid_ratio=0.15)
-    
-    trainer.train()
-    trainer.validate()
+    _app = App()
+    await _app.initialize()
+    app = _app.app
+  
+    @app.get('/predict/betsProfitRate')
+    async def predict_betsProfitRate():
+        # return _app.predict()
+        return {'message': 'Hello World'}
 
 
 if __name__ == '__main__':
