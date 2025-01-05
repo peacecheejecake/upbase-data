@@ -1,13 +1,36 @@
 # from utilsimport UPBIT_REST_API_BASE
-from forecast import DataLoader
+from forecast import DataLoader, Trainer, RandomForestModel, Dataset
+import numpy as np
 import asyncio
 
 async def main():
-    await DataLoader.load_candles(
+    model = RandomForestModel()
+    
+    data = await DataLoader.load_candles(
         market='KRW-IOTA', 
         unit='second', 
-        count=20000
+        count=200000
     )
+    X, y = DataLoader.make_input_output(
+        DataLoader.preprocess(data), 
+        columns_X=[
+            'variance', 
+            'worst_profit_rate_before', 
+            'opening_price', 
+            'high_price', 
+            'mid_price', 
+            'low_price', 
+            'candle_acc_trade_volume', 
+            'timedelta_after'
+        ], 
+        columns_y=['best_profit_rate'],
+    )
+
+    trainer = Trainer(model, Dataset(X, y), valid_ratio=0.15)
+    
+    trainer.train()
+    trainer.validate()
+
 
 if __name__ == '__main__':
     # import os

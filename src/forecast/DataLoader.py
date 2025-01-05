@@ -1,10 +1,24 @@
+from typing import Tuple
 from datetime import datetime, timedelta
 from time import sleep
 import math
+import numpy as np
 import pandas as pd
 
 from upbit.candles import TimeUnit, UpbitCandles
 from utils.datetime import kst_time
+from utils.functools import chain
+from .preprocess import (
+  remove_duplicated, 
+  sort_by_time, 
+  add_mid_price,
+  add_best_profit_rate, 
+  # add_worst_profit_rate, 
+  # add_profit_rate_bound_gap, 
+  add_worst_profit_rate_before, 
+  add_variance, 
+  add_timedelta_after,
+)
 
 class DataLoader:
 
@@ -31,7 +45,7 @@ class DataLoader:
         last_datetime = datetime.strptime(data[-1]['candle_date_time_kst'], '%Y-%m-%dT%H:%M:%S')
         to = kst_time(last_datetime - timedelta(seconds=1))
 
-        sleep(0.5)
+        sleep(0.1)
 
     print()
 
@@ -41,4 +55,23 @@ class DataLoader:
     #     save_parquet(df, file_name)
 
     return df
+  
+  @staticmethod
+  def preprocess(data: pd.DataFrame):
+    return chain(
+      remove_duplicated,
+      sort_by_time,
+      add_mid_price,
+      add_best_profit_rate,
+      # add_worst_profit_rate,
+      # add_profit_rate_bound_gap,
+      add_worst_profit_rate_before,
+      add_variance,
+      add_timedelta_after,
+    )(data)
+
+  @staticmethod
+  def make_input_output(data: pd.DataFrame, columns_X: list, columns_y: list) -> Tuple[np.ndarray, np.ndarray]:
+    _data = data.dropna(subset=columns_X + columns_y)
+    return np.array(_data[columns_X]), np.array(_data[columns_y]).reshape(-1)
   

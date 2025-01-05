@@ -1,25 +1,42 @@
-from typing import Dict, Optional, Literal
+from typing import Dict, Optional, Literal, Union, TypeVar
 from dataclasses import dataclass
 import pandas as pd
 import numpy as np
 
 from sklearn.model_selection import train_test_split
 
+from utils.functools import chain
 from .model.ModelBase import ModelBase
 from .typings import InputType, OutputType
 
 
 @dataclass
 class Dataset:
-  X: InputType
-  y: OutputType
+  __store = {
+    'X': InputType, 
+    'y': OutputType
+  }
+
+  def __init__(self, X: InputType, y: OutputType):
+    self.__store = {
+      'X': X,
+      'y': y,
+    }
+
+  @property
+  def X(self):
+    return self.__store['X']
+  
+  @property
+  def y(self):
+    return self.__store['y']
 
   def __getitem__(self, key: Literal['X', 'y']):
-    return self[key]
+    return self.__store[key]
   
-  def __setitem__(self, name, value):
-    self[name] = value
-  
+  def __setitem__(self, key, value):
+    self.__store[key] = value
+      
 
 class Trainer:
 
@@ -27,8 +44,16 @@ class Trainer:
   # data: pd.DataFrame
   data: Dataset
   data_splits: Dict[Literal['train', 'valid'], Dataset]
+  valid_ratio: float
 
-  def __init__(self, model: Optional[ModelBase] = None, data: Optional[Dataset] = None):
+  def __init__(
+    self, 
+    model: Optional[ModelBase] = None, 
+    data: Optional[Dataset] = None,
+    valid_ratio=0.2,
+  ):
+    self.valid_ratio = valid_ratio
+
     if model:
       self.load_model(model)
 
@@ -40,7 +65,7 @@ class Trainer:
 
   def load_data(self, data: Dataset):
     self.data = data
-    self.split_train_valid_data()
+    self.split_train_valid_data(self.valid_ratio)
 
   def split_train_valid_data(self, test_size=0.2):
     X_train, X_test, y_train, y_test = train_test_split(
@@ -64,6 +89,7 @@ class Trainer:
     # self.y_test = y_test
 
   def train(self):
+    print('Start training')
     self.model.train(self.data_splits['train']['X'], self.data_splits['train']['y'])
 
   def test(self, X: InputType, y: OutputType):
