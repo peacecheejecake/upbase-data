@@ -9,4 +9,5 @@ scikit-learn
 pyarrow
 fastparquet
 xgboost
-libomp
+torch
+transformers
