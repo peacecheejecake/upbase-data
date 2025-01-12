@@ -39,11 +39,11 @@ class UpbitCandles:
         return timedelta(days=7)
 
   @classmethod
-  async def get_candles(cls, market: str, unit: TimeUnit, to: Union[str, datetime], count: Optional[int] = 200):
+  def get_candles(cls, market: str, unit: TimeUnit, to: Union[str, datetime], count: Optional[int] = 200):
     url = cls.upbit_api_path(unit)
-
+    
     # delta_to = cls.timedelta_for_unit(unit)
-    return await request.get(url, params={
+    return request.get(url, params={
       "market": market, 
       "count": count,
       "to": str(to),

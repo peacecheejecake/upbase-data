@@ -26,10 +26,10 @@ from .preprocess import (
 class DataLoader:
 
   @staticmethod
-  async def load_candles(market: str, unit: TimeUnit, count: int, file_name: Optional[str] = None) -> pd.DataFrame:
+  def load_candles(market: str, unit: TimeUnit, count: int, file_name: Optional[str] = None, to: Optional[str] = None) -> pd.DataFrame:
     print(f"market={market}, candle_unit={unit}, count={count}")
 
-    to = kst_time(datetime.now())
+    to = to or kst_time(datetime.now())
     # delta_to = timedelta_for_unit(unit)
 
     num_batches = math.ceil(count / 200)
@@ -42,7 +42,7 @@ class DataLoader:
         # response = requests.get(url, headers=headers)
         # data += json.loads(response.text)
         _count = min(count - len(data), 200)
-        data += await UpbitCandles.get_candles(market, unit, to, _count)
+        data += UpbitCandles.get_candles(market, unit, to, _count)
         # to -= delta_to * count
         last_datetime = datetime.strptime(data[-1]['candle_date_time_kst'], '%Y-%m-%dT%H:%M:%S')
         to = kst_time(last_datetime - timedelta(seconds=1))

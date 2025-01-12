@@ -22,12 +22,12 @@ class App:
   async def initialize(self):
     self.prepare_model()
     
-    await self.prepare_trainer()
+    self.prepare_trainer()
     self.trainer.train()
     
     print(self.model.feature_importances())
     
-    self.trainer.load_model(self.model_compared``)
+    self.trainer.load_model(self.model_compared)
     self.trainer.train()
     
     self.app = FastAPI()
@@ -38,22 +38,24 @@ class App:
     self.model = XGBModel()
     self.model_compared = RandomForestModel()
   
-  async def prepare_trainer(self):
-    X, y = await self.load_candle_data('IOTA_1s_2000000_2025-01-05T18:19:37+09:00.parquet_20250105181937.parquet')
+  def prepare_trainer(self):
+    # X, y = await self.load_candle_data('IOTA_1s_2000000_2025-01-05T18:19:37+09:00.parquet_20250105181937.parquet')
+    X, y = self.load_candle_data()
     self.trainer = Trainer(self.model, Dataset(X, y), valid_ratio=0.15)
     
-  async def load_candle_data(self, file_name: Optional[str] = None) -> Tuple[np.ndarray, np.ndarray]:
+  def load_candle_data(self, file_name: Optional[str] = None) -> Tuple[np.ndarray, np.ndarray]:
     data = None
     
     if file_name:
       data = load_parquet(file_name)
     
     if data is None:
-      count = 20000
-      data = await DataLoader.load_candles(
+      count = 2000
+      data = DataLoader.load_candles(
         market='KRW-IOTA', 
         unit='second', 
         count=count,
+        # to='2024-10-15T18:19:37+09:00',
       )
       data = DataLoader.preprocess(data)
       
@@ -83,7 +85,7 @@ class App:
     return X, y
   
   async def predict_now(self):
-    data = await DataLoader.load_candles(
+    data = DataLoader.load_candles(
       market='KRW-IOTA', 
       unit='second', 
       count=200000
