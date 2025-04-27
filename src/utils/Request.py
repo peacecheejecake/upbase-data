@@ -20,7 +20,7 @@ class Request:
       params=params,
       headers=dict_union(self.default_headers(), headers),
     )
-    
+
     if (response.status_code != 200):
       raise Exception(f"GET {self.full_url(url)} failed: {response.status_code}, {response.json()}")
     
